@@ -99,6 +99,76 @@ export default function App() {
   <h1>Hi, I'm a Developer</h1>
   <p>Built with Omni-Code AI by Maya.</p>
 </body>`;
+    } else if (
+      userPrompt.includes("pricing") ||
+      userPrompt.includes("plan") ||
+      userPrompt.includes("card")
+    ) {
+      generatedCode = `<div style="display:flex; gap:20px; justify-content:center; padding:50px; font-family:sans-serif; background:#f6f8fa;">
+  <div style="background:white; padding:30px; border-radius:12px; width:220px; box-shadow:0 4px 20px rgba(0,0,0,0.08); text-align:center;">
+    <h3 style="margin:0 0 8px;">Starter</h3>
+    <div style="font-size:36px; font-weight:bold; color:#1f6feb;">\$0</div>
+    <p style="color:#666; font-size:14px;">For hobby projects</p>
+    <ul style="text-align:left; padding-left:20px; font-size:14px; color:#444;">
+      <li>1 project</li>
+      <li>Community support</li>
+    </ul>
+    <button style="width:100%; padding:10px; background:#1f6feb; color:white; border:none; border-radius:6px; margin-top:10px;">Choose</button>
+  </div>
+  <div style="background:white; padding:30px; border-radius:12px; width:220px; box-shadow:0 8px 30px rgba(31,111,235,0.25); text-align:center; border:2px solid #1f6feb;">
+    <h3 style="margin:0 0 8px;">Pro</h3>
+    <div style="font-size:36px; font-weight:bold; color:#1f6feb;">\$19</div>
+    <p style="color:#666; font-size:14px;">For growing teams</p>
+    <ul style="text-align:left; padding-left:20px; font-size:14px; color:#444;">
+      <li>Unlimited projects</li>
+      <li>Priority support</li>
+    </ul>
+    <button style="width:100%; padding:10px; background:#238636; color:white; border:none; border-radius:6px; margin-top:10px;">Choose</button>
+  </div>
+</div>`;
+    } else if (
+      userPrompt.includes("hero") ||
+      userPrompt.includes("landing") ||
+      userPrompt.includes("banner")
+    ) {
+      generatedCode = `<section style="min-height:80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#1f6feb,#8957e5); color:white; font-family:sans-serif; text-align:center; padding:40px;">
+  <h1 style="font-size:48px; margin:0 0 16px;">Build the future, faster.</h1>
+  <p style="font-size:18px; max-width:520px; opacity:0.9;">A modern starting point for your next big idea. Ship in days, not months.</p>
+  <div style="margin-top:30px; display:flex; gap:12px;">
+    <button style="padding:14px 28px; background:white; color:#1f6feb; border:none; border-radius:30px; font-weight:bold; font-size:16px;">Get Started</button>
+    <button style="padding:14px 28px; background:transparent; color:white; border:2px solid white; border-radius:30px; font-weight:bold; font-size:16px;">Learn more</button>
+  </div>
+</section>`;
+    } else if (
+      userPrompt.includes("contact") ||
+      userPrompt.includes("message")
+    ) {
+      generatedCode = `<div style="max-width:420px; margin:50px auto; padding:30px; border-radius:12px; background:white; box-shadow:0 8px 24px rgba(0,0,0,0.08); font-family:sans-serif;">
+  <h2 style="margin:0 0 6px;">Get in touch</h2>
+  <p style="color:#666; font-size:14px; margin:0 0 20px;">We usually reply within a day.</p>
+  <input type="text" placeholder="Your name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+  <input type="email" placeholder="Your email" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+  <textarea placeholder="Your message" rows="4" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; resize:vertical;"></textarea>
+  <button style="width:100%; padding:12px; background:#238636; color:white; border:none; border-radius:6px; font-weight:bold;">Send Message</button>
+</div>`;
+    } else if (
+      userPrompt.includes("navbar") ||
+      userPrompt.includes("header") ||
+      userPrompt.includes("menu")
+    ) {
+      generatedCode = `<nav style="display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:white; border-bottom:1px solid #eee; font-family:sans-serif; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(45deg,#1f6feb,#8957e5);"></div>
+    <strong style="font-size:18px;">Brand</strong>
+  </div>
+  <div style="display:flex; gap:24px; font-size:14px; color:#444;">
+    <a href="#" style="text-decoration:none; color:inherit;">Home</a>
+    <a href="#" style="text-decoration:none; color:inherit;">Features</a>
+    <a href="#" style="text-decoration:none; color:inherit;">Pricing</a>
+    <a href="#" style="text-decoration:none; color:inherit;">About</a>
+  </div>
+  <button style="padding:8px 16px; background:#1f6feb; color:white; border:none; border-radius:6px; font-weight:bold;">Sign in</button>
+</nav>`;
     } else {
       generatedCode = `<div style="padding:40px; font-family:sans-serif; text-align:center;">
   <h1>Maya has built: ${prompt}</h1>
@@ -167,7 +237,7 @@ export default function App() {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. 'Create a dark portfolio' ya 'Make a login form'..."
+            placeholder="Try: 'login form', 'pricing card', 'hero section', 'contact form', 'navbar', 'dark portfolio', 'magic button'..."
             style={{
               width: "100%",
               height: "100px",
