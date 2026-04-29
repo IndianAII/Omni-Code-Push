@@ -1,17 +1,73 @@
 import { useState, useEffect } from "react";
 
+const STORAGE_KEY = "omni-code-ai:v1";
+const DEFAULT_CODE = "\n<h1 style='color:blue'>Welcome to Omni-Code</h1>";
+
+type StoredState = {
+  code: string;
+  currency: "INR" | "USD";
+  amount: number;
+};
+
+function loadStored(): StoredState {
+  if (typeof window === "undefined") {
+    return { code: DEFAULT_CODE, currency: "INR", amount: 800 };
+  }
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { code: DEFAULT_CODE, currency: "INR", amount: 800 };
+    const parsed = JSON.parse(raw) as Partial<StoredState>;
+    return {
+      code: typeof parsed.code === "string" ? parsed.code : DEFAULT_CODE,
+      currency: parsed.currency === "USD" ? "USD" : "INR",
+      amount:
+        typeof parsed.amount === "number" && parsed.amount > 0
+          ? parsed.amount
+          : parsed.currency === "USD"
+            ? 10
+            : 800,
+    };
+  } catch {
+    return { code: DEFAULT_CODE, currency: "INR", amount: 800 };
+  }
+}
+
 export default function App() {
-  const [code, setCode] = useState<string>(
-    "\n<h1 style='color:blue'>Welcome to Omni-Code</h1>",
-  );
-  const [currency, setCurrency] = useState<"INR" | "USD">("INR");
-  const [amount, setAmount] = useState<number>(800);
+  const initial = loadStored();
+  const [code, setCode] = useState<string>(initial.code);
+  const [currency, setCurrency] = useState<"INR" | "USD">(initial.currency);
+  const [amount, setAmount] = useState<number>(initial.amount);
   const [showSupport, setShowSupport] = useState<boolean>(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSupport(true), 20000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handle = setTimeout(() => {
+      try {
+        const payload: StoredState = { code, currency, amount };
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        setSavedAt(Date.now());
+      } catch {
+        // storage may be full or disabled; ignore
+      }
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [code, currency, amount]);
+
+  function resetEditor() {
+    setCode(DEFAULT_CODE);
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+      setSavedAt(null);
+    } catch {
+      // ignore
+    }
+  }
 
   return (
     <div
@@ -98,18 +154,38 @@ export default function App() {
           }}
         >
           <span style={{ fontWeight: "bold" }}>Omni-Code AI Editor</span>
-          <button
-            style={{
-              background: "#1f6feb",
-              color: "white",
-              border: "none",
-              padding: "5px 15px",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            Deploy Live
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 11, color: "#8b949e" }}>
+              {savedAt
+                ? `Saved ${new Date(savedAt).toLocaleTimeString()}`
+                : "Auto-save on"}
+            </span>
+            <button
+              onClick={resetEditor}
+              style={{
+                background: "transparent",
+                color: "#8b949e",
+                border: "1px solid #30363d",
+                padding: "5px 12px",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Reset
+            </button>
+            <button
+              style={{
+                background: "#1f6feb",
+                color: "white",
+                border: "none",
+                padding: "5px 15px",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Deploy Live
+            </button>
+          </div>
         </div>
         <div style={{ display: "flex", flex: 1 }}>
           <textarea
