@@ -1,11 +1,20 @@
 import { Router, type IRouter } from "express";
-import { HealthCheckResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
+router.get("/health", (_req, res) => {
+  res.json({
+    status: "Omni-Code AI Online",
+    features: ["PWA", "Alarm", "Support Slider"],
+  });
+});
+
 router.get("/healthz", (_req, res) => {
-  const data = HealthCheckResponse.parse({ status: "ok" });
-  res.json(data);
+  res.json({ status: "ok" });
+});
+
+router.post("/set-alarm", (_req, res) => {
+  res.status(200).send({ success: true, alarmSet: true });
 });
 
 export default router;
