@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Health AI Assistant"
+title = "Omni-Code AI"
 version = "1.0.0"
 id = "artifacts/health-ai"
 router = "path"

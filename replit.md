@@ -6,11 +6,8 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 
 ## Artifacts
 
-- **Health AI Assistant** (`artifacts/health-ai`) — React + Vite frontend at `/`. Wellness alarm, developer support slider, PWA-ready (manifest + theme color).
+- **Omni-Code AI** (`artifacts/health-ai`) — React + Vite web app at `/`. Maya AI sidebar, live HTML code editor with side-by-side preview, multi-currency support popup (INR/USD).
 - **API Server** (`artifacts/api-server`) — Express 5 backend at `/api`.
-  - `GET /api/health` → `{ status, features }`
-  - `POST /api/set-alarm` → `{ success, alarmSet }`
-  - `GET /api/healthz` → `{ status: "ok" }`
 - **Canvas** (`artifacts/mockup-sandbox`) — design sandbox at `/__mockup`.
 
 ## Stack
