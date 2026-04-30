@@ -127,7 +127,14 @@ export default function App() {
   const copyCode = () => {
     navigator.clipboard.writeText(code);
     alert("Code Copied!");
+  };  const shareSite = () => {
+    const encoded = btoa(code); 
+    const shareUrl = `${window.location.origin}${window.location.search.includes('?') ? window.location.search + '&' : '?'}site=${encoded}`;
+    const message = `Bhai, dekh maine Maya AI se ye website banayi hai! Link khol ke check kar: ${shareUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
+
 
   const deployToNetlify = () => {
     if (isDeploying) return;
@@ -340,7 +347,22 @@ export default function App() {
             Copy Code
           </button>
         </div>
-
+<button 
+  onClick={shareSite} 
+  style={{ 
+    background: '#238636', 
+    color: 'white', 
+    border: 'none', 
+    padding: '5px 15px', 
+    borderRadius: '6px', 
+    fontSize: '12px', 
+    marginLeft: '8px',
+    cursor: 'pointer' 
+  }}
+>
+  WhatsApp Share 📱
+</button>
+        
         <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
           {(!isMobile || activeTab === "editor") && (
             <textarea
