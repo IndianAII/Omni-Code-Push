@@ -130,11 +130,16 @@ export default function App() {
   };
 
   const deployToNetlify = () => {
+    if (isDeploying) return;
     setIsDeploying(true);
     setTimeout(() => {
       setIsDeploying(false);
-      alert("Deployment Process Started! Check your Netlify dashboard.");
-    }, 2000);
+      const liveUrl =
+        typeof window !== "undefined" ? window.location.origin : "";
+      if (liveUrl) {
+        window.open(liveUrl, "_blank", "noopener,noreferrer");
+      }
+    }, 800);
   };
 
   return (
