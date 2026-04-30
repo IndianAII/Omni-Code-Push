@@ -1,216 +1,214 @@
 import { useState, useEffect } from "react";
 
-const STORAGE_KEY = "omni-code-ai:v1";
-const DEFAULT_CODE =
-  "\n<div style='text-align:center; font-family:sans-serif; padding:50px;'>\n  <h1 style='color:#58a6ff;'>Omni-Code AI Pro</h1>\n  <p>Left side mein prompt likho aur 'BUILD' dabao!</p>\n</div>";
+// Language & Agent Data
+const languages = {
+  Hindi: {
+    greet: "Bhai, main aapke liye code likh rahi hoon!",
+    placeholder: "Prompt dalo...",
+    build: "BANAO 🚀",
+    deploy: "LIVE KARO",
+  },
+  English: {
+    greet: "I'm writing the code for you!",
+    placeholder: "Type a prompt...",
+    build: "BUILD 🚀",
+    deploy: "GO LIVE",
+  },
+  Marathi: {
+    greet: "मी तुमच्यासाठी कोड लिहित आहे!",
+    placeholder: "प्रॉम्प्ट टाका...",
+    build: "बनवा 🚀",
+    deploy: "लाईव्ह करा",
+  },
+  Bengali: {
+    greet: "আমি আপনার জন্য কোড লিখছি!",
+    placeholder: "প্রম্পট দিন...",
+    build: "তৈরি করুন 🚀",
+    deploy: "লাইভ করুন",
+  },
+} as const;
 
-type StoredState = {
-  code: string;
-  currency: "INR" | "USD";
-  amount: number;
-};
+const agentNames = {
+  India: {
+    name: "Maya",
+    theme: "linear-gradient(135deg, #0d1117 0%, #161b22 100%)",
+  },
+  USA: {
+    name: "Mia",
+    theme: "linear-gradient(135deg, #001f3f 0%, #000000 100%)",
+  },
+  Japan: {
+    name: "Yuki",
+    theme: "linear-gradient(135deg, #2d1b2d 0%, #1a0f1a 100%)",
+  },
+} as const;
 
-function loadStored(): StoredState {
-  if (typeof window === "undefined") {
-    return { code: DEFAULT_CODE, currency: "INR", amount: 800 };
-  }
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { code: DEFAULT_CODE, currency: "INR", amount: 800 };
-    const parsed = JSON.parse(raw) as Partial<StoredState>;
-    return {
-      code: typeof parsed.code === "string" ? parsed.code : DEFAULT_CODE,
-      currency: parsed.currency === "USD" ? "USD" : "INR",
-      amount:
-        typeof parsed.amount === "number" && parsed.amount > 0
-          ? parsed.amount
-          : parsed.currency === "USD"
-            ? 10
-            : 800,
-    };
-  } catch {
-    return { code: DEFAULT_CODE, currency: "INR", amount: 800 };
-  }
-}
+type LangKey = keyof typeof languages;
+type CountryKey = keyof typeof agentNames;
 
 export default function App() {
-  const initial = loadStored();
-  const [code, setCode] = useState<string>(initial.code);
+  const [code, setCode] = useState<string>(
+    "\n<div style='text-align:center; padding:50px; font-family:sans-serif;'>\n  <h1>Welcome to Global AI Builder</h1>\n  <p>Prompt dalo aur magic dekho!</p>\n</div>",
+  );
   const [prompt, setPrompt] = useState<string>("");
-  const [currency, setCurrency] = useState<"INR" | "USD">(initial.currency);
-  const [amount, setAmount] = useState<number>(initial.amount);
-  const [showSupport, setShowSupport] = useState<boolean>(false);
-  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [lang, setLang] = useState<LangKey>("Hindi");
+  const [country, setCountry] = useState<CountryKey>("India");
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
+  const [isDeploying, setIsDeploying] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false,
+  );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handle = setTimeout(() => {
-      try {
-        const payload: StoredState = { code, currency, amount };
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        setSavedAt(Date.now());
-      } catch {
-        // storage may be full or disabled; ignore
-      }
-    }, 400);
-    return () => clearTimeout(handle);
-  }, [code, currency, amount]);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  function resetEditor() {
-    setCode(DEFAULT_CODE);
-    try {
-      window.localStorage.removeItem(STORAGE_KEY);
-      setSavedAt(null);
-    } catch {
-      // ignore
-    }
-  }
-
-  // Maya's brain
-  function handleMayaAction() {
+  // The Super Brain (Templates + Logic)
+  const handleMayaAction = () => {
     if (!prompt) return;
-    const userPrompt = prompt.toLowerCase();
-    let generatedCode = "";
+    const p = prompt.toLowerCase();
+    let res = "";
 
-    if (userPrompt.includes("login") || userPrompt.includes("form")) {
-      generatedCode = `<div style="max-width:300px; margin:50px auto; padding:20px; border:1px solid #ccc; border-radius:10px; font-family:sans-serif;">
-  <h2>Login</h2>
-  <input type="text" placeholder="Username" style="width:100%; margin-bottom:10px; padding:8px;">
-  <input type="password" placeholder="Password" style="width:100%; margin-bottom:10px; padding:8px;">
-  <button style="width:100%; padding:10px; background:#238636; color:white; border:none; border-radius:5px;">Sign In</button>
+    if (p.includes("calculator")) {
+      const buttons = [
+        "7",
+        "8",
+        "9",
+        "/",
+        "4",
+        "5",
+        "6",
+        "*",
+        "1",
+        "2",
+        "3",
+        "-",
+        "0",
+        "C",
+        "=",
+        "+",
+      ];
+      res = `<div style="max-width:300px; margin:20px auto; background:#222; padding:20px; border-radius:20px; font-family:sans-serif; color:white; text-align:center;">
+  <div style="background:#000; padding:20px; font-size:24px; text-align:right; border-radius:10px; margin-bottom:10px;">0</div>
+  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+    ${buttons.map((b) => `<button style="padding:15px; background:#444; color:white; border:none; border-radius:10px;">${b}</button>`).join("")}
+  </div>
 </div>`;
-    } else if (
-      userPrompt.includes("button") ||
-      userPrompt.includes("magic")
-    ) {
-      generatedCode = `<div style="display:flex; justify-content:center; align-items:center; height:100vh;">
-  <button style="padding:20px 40px; font-size:20px; background:linear-gradient(45deg, #ff7b72, #8957e5); color:white; border:none; border-radius:50px; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.2);">Maya's Magic Button</button>
-</div>`;
-    } else if (
-      userPrompt.includes("dark") ||
-      userPrompt.includes("portfolio")
-    ) {
-      generatedCode = `<body style="background:#0d1117; color:white; font-family:sans-serif; padding:40px;">
-  <nav style="display:flex; justify-content:space-between;">
-    <h2>My Portfolio</h2>
-    <div>Home | Projects | Contact</div>
-  </nav>
-  <hr style="border:0.5px solid #333; margin:20px 0;">
-  <h1>Hi, I'm a Developer</h1>
-  <p>Built with Omni-Code AI by Maya.</p>
+    } else if (p.includes("netflix") || p.includes("movie")) {
+      res = `<body style="background:#000; color:white; font-family:sans-serif; margin:0;">
+  <nav style="padding:20px; font-size:24px; color:red; font-weight:bold;">MAYAFLIX</nav>
+  <div style="padding:20px;">
+    <h2>Trending Now</h2>
+    <div style="display:flex; gap:10px; overflow-x:auto;">
+      ${[1, 2, 3, 4].map((i) => `<div style="min-width:150px; height:220px; background:#333; border-radius:10px; display:flex; align-items:center; justify-content:center;">Movie ${i}</div>`).join("")}
+    </div>
+  </div>
 </body>`;
-    } else if (
-      userPrompt.includes("pricing") ||
-      userPrompt.includes("plan") ||
-      userPrompt.includes("card")
-    ) {
-      generatedCode = `<div style="display:flex; gap:20px; justify-content:center; padding:50px; font-family:sans-serif; background:#f6f8fa;">
-  <div style="background:white; padding:30px; border-radius:12px; width:220px; box-shadow:0 4px 20px rgba(0,0,0,0.08); text-align:center;">
-    <h3 style="margin:0 0 8px;">Starter</h3>
-    <div style="font-size:36px; font-weight:bold; color:#1f6feb;">\$0</div>
-    <p style="color:#666; font-size:14px;">For hobby projects</p>
-    <ul style="text-align:left; padding-left:20px; font-size:14px; color:#444;">
-      <li>1 project</li>
-      <li>Community support</li>
-    </ul>
-    <button style="width:100%; padding:10px; background:#1f6feb; color:white; border:none; border-radius:6px; margin-top:10px;">Choose</button>
-  </div>
-  <div style="background:white; padding:30px; border-radius:12px; width:220px; box-shadow:0 8px 30px rgba(31,111,235,0.25); text-align:center; border:2px solid #1f6feb;">
-    <h3 style="margin:0 0 8px;">Pro</h3>
-    <div style="font-size:36px; font-weight:bold; color:#1f6feb;">\$19</div>
-    <p style="color:#666; font-size:14px;">For growing teams</p>
-    <ul style="text-align:left; padding-left:20px; font-size:14px; color:#444;">
-      <li>Unlimited projects</li>
-      <li>Priority support</li>
-    </ul>
-    <button style="width:100%; padding:10px; background:#238636; color:white; border:none; border-radius:6px; margin-top:10px;">Choose</button>
-  </div>
+    } else if (p.includes("weather")) {
+      res = `<div style="max-width:300px; margin:20px auto; background:linear-gradient(to bottom, #58a6ff, #1f6feb); padding:30px; border-radius:20px; color:white; font-family:sans-serif; text-align:center;">
+  <h2>Bhopal</h2>
+  <div style="font-size:60px; margin:10px 0;">32°C</div>
+  <p>Sunny Day</p>
 </div>`;
-    } else if (
-      userPrompt.includes("hero") ||
-      userPrompt.includes("landing") ||
-      userPrompt.includes("banner")
-    ) {
-      generatedCode = `<section style="min-height:80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#1f6feb,#8957e5); color:white; font-family:sans-serif; text-align:center; padding:40px;">
-  <h1 style="font-size:48px; margin:0 0 16px;">Build the future, faster.</h1>
-  <p style="font-size:18px; max-width:520px; opacity:0.9;">A modern starting point for your next big idea. Ship in days, not months.</p>
-  <div style="margin-top:30px; display:flex; gap:12px;">
-    <button style="padding:14px 28px; background:white; color:#1f6feb; border:none; border-radius:30px; font-weight:bold; font-size:16px;">Get Started</button>
-    <button style="padding:14px 28px; background:transparent; color:white; border:2px solid white; border-radius:30px; font-weight:bold; font-size:16px;">Learn more</button>
-  </div>
-</section>`;
-    } else if (
-      userPrompt.includes("contact") ||
-      userPrompt.includes("message")
-    ) {
-      generatedCode = `<div style="max-width:420px; margin:50px auto; padding:30px; border-radius:12px; background:white; box-shadow:0 8px 24px rgba(0,0,0,0.08); font-family:sans-serif;">
-  <h2 style="margin:0 0 6px;">Get in touch</h2>
-  <p style="color:#666; font-size:14px; margin:0 0 20px;">We usually reply within a day.</p>
-  <input type="text" placeholder="Your name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
-  <input type="email" placeholder="Your email" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
-  <textarea placeholder="Your message" rows="4" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; resize:vertical;"></textarea>
-  <button style="width:100%; padding:12px; background:#238636; color:white; border:none; border-radius:6px; font-weight:bold;">Send Message</button>
-</div>`;
-    } else if (
-      userPrompt.includes("navbar") ||
-      userPrompt.includes("header") ||
-      userPrompt.includes("menu")
-    ) {
-      generatedCode = `<nav style="display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:white; border-bottom:1px solid #eee; font-family:sans-serif; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-  <div style="display:flex; align-items:center; gap:10px;">
-    <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(45deg,#1f6feb,#8957e5);"></div>
-    <strong style="font-size:18px;">Brand</strong>
-  </div>
-  <div style="display:flex; gap:24px; font-size:14px; color:#444;">
-    <a href="#" style="text-decoration:none; color:inherit;">Home</a>
-    <a href="#" style="text-decoration:none; color:inherit;">Features</a>
-    <a href="#" style="text-decoration:none; color:inherit;">Pricing</a>
-    <a href="#" style="text-decoration:none; color:inherit;">About</a>
-  </div>
-  <button style="padding:8px 16px; background:#1f6feb; color:white; border:none; border-radius:6px; font-weight:bold;">Sign in</button>
-</nav>`;
     } else {
-      generatedCode = `<div style="padding:40px; font-family:sans-serif; text-align:center;">
-  <h1>Maya has built: ${prompt}</h1>
-  <p>Aap is code ko editor mein edit bhi kar sakte hain!</p>
+      res = `<div style="padding:40px; text-align:center; font-family:sans-serif; background:#f0f0f0; border-radius:20px;">
+  <h1>${prompt}</h1>
+  <p>Generated by ${agentNames[country].name} AI</p>
 </div>`;
     }
 
-    setCode(generatedCode);
+    setCode(res);
     setPrompt("");
+    if (isMobile) setTimeout(() => setActiveTab("preview"), 400);
+  };
 
-    if (Math.random() > 0.5) {
-      setTimeout(() => setShowSupport(true), 1500);
-    }
-  }
+  const copyCode = () => {
+    navigator.clipboard.writeText(code);
+    alert("Code Copied!");
+  };
+
+  const deployToNetlify = () => {
+    setIsDeploying(true);
+    setTimeout(() => {
+      setIsDeploying(false);
+      alert("Deployment Process Started! Check your Netlify dashboard.");
+    }, 2000);
+  };
 
   return (
     <div
       style={{
         display: "flex",
+        flexDirection: isMobile ? "column" : "row",
         height: "100vh",
-        background: "#0d1117",
+        background: agentNames[country].theme,
         color: "#c9d1d9",
         overflow: "hidden",
-        fontFamily: "Segoe UI, sans-serif",
       }}
     >
-      {/* Maya Pro Sidebar */}
+      {/* SIDEBAR */}
       <div
         style={{
-          width: "320px",
-          background: "#161b22",
-          borderRight: "1px solid #30363d",
+          width: isMobile ? "100%" : "320px",
+          background: "rgba(22, 27, 34, 0.95)",
           padding: "20px",
+          borderRight: "1px solid #30363d",
           display: "flex",
           flexDirection: "column",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "25px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "15px",
+          }}
+        >
+          <select
+            value={country}
+            onChange={(e) => setCountry(e.target.value as CountryKey)}
+            style={{
+              background: "#010409",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+              padding: "5px",
+              fontSize: "12px",
+            }}
+          >
+            {(Object.keys(agentNames) as CountryKey[]).map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as LangKey)}
+            style={{
+              background: "#010409",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+              padding: "5px",
+              fontSize: "12px",
+            }}
+          >
+            {(Object.keys(languages) as LangKey[]).map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <div
             style={{
-              width: "80px",
-              height: "80px",
+              width: "60px",
+              height: "60px",
               borderRadius: "50%",
               background: "linear-gradient(45deg, #ff7b72, #8957e5)",
               margin: "0 auto 10px",
@@ -218,38 +216,33 @@ export default function App() {
               alignItems: "center",
               justifyContent: "center",
               fontSize: "30px",
-              color: "white",
-              fontWeight: "bold",
             }}
           >
-            M
+            👩‍💼
           </div>
-          <h3 style={{ color: "#58a6ff", margin: 0 }}>Maya AI Brain</h3>
-          <p style={{ fontSize: "11px", color: "#56d364", margin: "4px 0 0" }}>
-            Online &amp; Ready to Build
+          <h3 style={{ color: "#58a6ff", margin: 0 }}>
+            {agentNames[country].name} AI
+          </h3>
+          <p style={{ fontSize: "11px", color: "#8b949e" }}>
+            {languages[lang].greet}
           </p>
         </div>
 
         <div style={{ flex: 1 }}>
-          <label style={{ fontSize: "12px", color: "#8b949e" }}>
-            Ask Maya to create something:
-          </label>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Try: 'login form', 'pricing card', 'hero section', 'contact form', 'navbar', 'dark portfolio', 'magic button'..."
+            placeholder={languages[lang].placeholder}
             style={{
               width: "100%",
-              height: "100px",
+              height: "80px",
               background: "#010409",
-              color: "#fff",
               border: "1px solid #30363d",
               borderRadius: "8px",
+              color: "#fff",
               padding: "10px",
-              marginTop: "5px",
-              outline: "none",
               resize: "none",
-              fontSize: "14px",
+              marginBottom: "10px",
               boxSizing: "border-box",
             }}
           />
@@ -259,32 +252,44 @@ export default function App() {
               width: "100%",
               padding: "12px",
               background: "#238636",
-              color: "white",
               border: "none",
               borderRadius: "8px",
+              color: "white",
               fontWeight: "bold",
-              marginTop: "10px",
+              marginBottom: "10px",
               cursor: "pointer",
             }}
           >
-            BUILD FOR FREE
+            {languages[lang].build}
           </button>
-
-          <p
+          <button
+            onClick={deployToNetlify}
             style={{
-              fontSize: "12px",
-              marginTop: "15px",
-              color: "#8b949e",
+              width: "100%",
+              padding: "12px",
+              background: "#1f6feb",
+              border: "none",
+              borderRadius: "8px",
+              color: "white",
+              fontWeight: "bold",
+              opacity: isDeploying ? 0.6 : 1,
+              cursor: "pointer",
             }}
           >
-            <b>Maya:</b> "Bhai, main aapke liye code likh rahi hoon. Bas prompt
-            dalo!"
-          </p>
+            {isDeploying ? "Deploying..." : languages[lang].deploy}
+          </button>
         </div>
       </div>
 
-      {/* Editor */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      {/* EDITOR & PREVIEW */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
         <div
           style={{
             padding: "10px 20px",
@@ -295,174 +300,69 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          <span style={{ fontWeight: "bold" }}>Omni-Code Editor v1.5</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 11, color: "#8b949e" }}>
-              {savedAt
-                ? `Saved ${new Date(savedAt).toLocaleTimeString()}`
-                : "Auto-save on"}
-            </span>
-            <button
-              onClick={resetEditor}
-              style={{
-                background: "transparent",
-                color: "#8b949e",
-                border: "1px solid #30363d",
-                padding: "5px 12px",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Reset
-            </button>
-            <button
-              onClick={() => setShowSupport(true)}
-              style={{
-                background: "#1f6feb",
-                color: "white",
-                border: "none",
-                padding: "6px 15px",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
-              Support Dev
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", flex: 1 }}>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            style={{
-              flex: 1,
-              background: "#0d1117",
-              color: "#79c0ff",
-              padding: "20px",
-              fontFamily: "monospace",
-              fontSize: "15px",
-              border: "none",
-              outline: "none",
-              borderRight: "1px solid #30363d",
-              resize: "none",
-            }}
-          />
-          <iframe
-            title="preview"
-            srcDoc={code}
-            style={{ flex: 1, background: "#fff", border: "none" }}
-          />
-        </div>
-      </div>
-
-      {/* Support Popup (centered modal) */}
-      {showSupport && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "320px",
-            background: "#161b22",
-            padding: "25px",
-            borderRadius: "15px",
-            border: "2px solid #58a6ff",
-            zIndex: 1000,
-            boxShadow: "0 0 50px #000",
-          }}
-        >
-          <h3 style={{ textAlign: "center", marginTop: 0 }}>
-            Support Developer
-          </h3>
-          <div style={{ display: "flex", gap: "5px", marginBottom: "15px" }}>
-            <button
-              onClick={() => {
-                setCurrency("INR");
-                setAmount(800);
-              }}
-              style={{
-                flex: 1,
-                background: currency === "INR" ? "#1f6feb" : "#333",
-                color: "white",
-                border: "none",
-                padding: "8px",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              INR
-            </button>
-            <button
-              onClick={() => {
-                setCurrency("USD");
-                setAmount(10);
-              }}
-              style={{
-                flex: 1,
-                background: currency === "USD" ? "#1f6feb" : "#333",
-                color: "white",
-                border: "none",
-                padding: "8px",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              USD
-            </button>
-          </div>
-          <input
-            type="range"
-            min={currency === "INR" ? 800 : 10}
-            max={currency === "INR" ? 8000 : 100}
-            value={amount}
-            onChange={(e) => setAmount(parseInt(e.target.value))}
-            style={{ width: "100%" }}
-          />
-          <div
-            style={{
-              textAlign: "center",
-              fontSize: "24px",
-              fontWeight: "bold",
-              margin: "10px 0",
-              color: "#56d364",
-            }}
-          >
-            {currency === "INR" ? "Rs " : "$"}
-            {amount}
+          <div style={{ display: "flex", gap: "5px" }}>
+            {isMobile && (
+              <button
+                onClick={() =>
+                  setActiveTab(activeTab === "editor" ? "preview" : "editor")
+                }
+                style={{
+                  background: "#30363d",
+                  color: "white",
+                  border: "none",
+                  padding: "5px 15px",
+                  borderRadius: "5px",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                }}
+              >
+                {activeTab === "editor" ? "Preview" : "Code"}
+              </button>
+            )}
           </div>
           <button
+            onClick={copyCode}
             style={{
-              width: "100%",
-              padding: "12px",
-              background: "#238636",
-              border: "none",
+              background: "#21262d",
+              color: "#c9d1d9",
+              border: "1px solid #30363d",
+              padding: "5px 15px",
               borderRadius: "6px",
-              color: "white",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            Support Now
-          </button>
-          <button
-            onClick={() => setShowSupport(false)}
-            style={{
-              width: "100%",
-              marginTop: "8px",
-              background: "transparent",
-              border: "none",
-              color: "#8b949e",
               fontSize: "12px",
               cursor: "pointer",
             }}
           >
-            Close
+            Copy Code
           </button>
         </div>
-      )}
+
+        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+          {(!isMobile || activeTab === "editor") && (
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              style={{
+                flex: 1,
+                background: "#0d1117",
+                color: "#79c0ff",
+                padding: "20px",
+                fontFamily: "monospace",
+                border: "none",
+                outline: "none",
+                resize: "none",
+                borderRight: !isMobile ? "1px solid #30363d" : "none",
+              }}
+            />
+          )}
+          {(!isMobile || activeTab === "preview") && (
+            <iframe
+              title="preview"
+              srcDoc={code}
+              style={{ flex: 1, background: "#fff", border: "none" }}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
